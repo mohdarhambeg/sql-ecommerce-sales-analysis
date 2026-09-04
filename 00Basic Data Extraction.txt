@@ -1,0 +1,35 @@
+Basic Data Exploration
+----------------------
+
+Total Customers:
+99441
+
+Total Orders:
+99441
+
+Most Common Order Status:
+shipped
+unavailable
+invoiced
+created
+approved
+processing
+delivered
+canceled
+
+Top Customer State:
+SP	(41746)
+
+Top Customer City:
+sao paulo	(15540)
+
+Most Used Payments Method:
+credit_card	76795
+
+Total Payment Value:
+16008872.12
+
+Average Payment Value:
+154.1003804169955528
+
+
