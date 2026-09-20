@@ -21,5 +21,6 @@ select seller_id, count(distinct order_id) as order_handled
 from order_items
 group by seller_id  
 order by order_handled DESC
-limit 10
+limit 10;
 
+--
