@@ -15,3 +15,11 @@ FROM order_items
 GROUP BY seller_id
 ORDER BY items_sold DESC
 LIMIT 10;
+
+--Number of orders handled by each seller
+select seller_id, count(distinct order_id) as order_handled
+from order_items
+group by seller_id  
+order by order_handled DESC
+limit 10
+
