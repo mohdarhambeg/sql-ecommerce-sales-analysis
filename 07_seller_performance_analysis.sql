@@ -20,3 +20,11 @@ from order_items
 group by seller_id 
 order by order_handled desc
 limit 10;
+
+--revenue by seller state 
+select s.seller_state,sum(oi.price) as total_revenue
+from order_items oi 
+join sellers s on oi.seller_id = s.seller_id 
+group by s.seller_state 
+order by total_revenue desc;
+
