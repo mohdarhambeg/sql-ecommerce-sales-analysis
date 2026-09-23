@@ -36,4 +36,14 @@ group by oi.seller_id
 having count(distinct oi.order_id) >=10
 order by average_review_score desc;
 
-
+--rank seller by revenue
+SELECT
+    seller_id,
+    SUM(price) AS total_revenue,
+    RANK() OVER (
+        ORDER BY SUM(price) DESC
+    ) AS revenue_rank
+FROM order_items
+GROUP BY seller_id
+ORDER BY revenue_rank
+LIMIT 20;
