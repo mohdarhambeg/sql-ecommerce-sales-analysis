@@ -28,3 +28,12 @@ join sellers s on oi.seller_id = s.seller_id
 group by s.seller_state 
 order by total_revenue desc;
 
+--Average review score for each seller
+select oi.seller_id, round(avg(t.review_score),2) as average_review_score, count(distinct oi.order_id) as total_order
+from order_items oi
+join order_reviews t on oi.order_id = t.order_id 
+group by oi.seller_id 
+having count(distinct oi.order_id) >=10
+order by average_review_score desc;
+
+
