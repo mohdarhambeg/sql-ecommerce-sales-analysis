@@ -47,3 +47,67 @@ FROM order_items
 GROUP BY seller_id
 ORDER BY revenue_rank
 LIMIT 20;
+
+--seller performance scorecard 
+with seller_revenue as(
+	select seller_id,sum(price) as total_revenue, count(distinct order_id) as total_orders
+	from order_items
+	group by seller_id
+),
+seller_reviews as(
+select oi.seller_id, avg(r.review_score) as avg_review_score
+from order_items oi
+join order_reviews r on oi.order_id = r.order_id
+group by oi.seller_id
+)
+select sr.seller_id, sr.total_revenue, sr.total_orders,
+round(srev.avg_review_score, 2) as avg_review_score,
+rank() over(order by sr.total_revenue desc) as revenue_rank 
+from seller_revenue sr
+left join seller_reviews srev on sr.seller_id = srev.seller_id 
+order by revenue_rank 
+limit 20;
+
+--seller performance categories
+with seller_performance as (
+select oi.seller_id, sum(oi.price) as total_revenue, count(distinct oi.order_id) as total_order,
+avg(r.review_score) as avg_review_score
+from order_items oi 
+left join order_reviews r on oi.order_id = r.order_id 
+group by oi.seller_id
+)
+select seller_id, total_revenue, total_order, round(avg_review_score,2) as avg_review_score ,
+case
+	when total_revenue >= 100000
+		 and avg_review_score >=4
+	then 'Top Performer'
+	when total_revenue >= 50000
+	then 'Strong Performer'
+	else 'Developer Seller'
+end as seller_category
+from seller_performance
+order by total_revenue desc;
+
+--advanced  seller scorecard
+with seller_metrics as (
+select oi.seller_id, sum(oi.price) as total_revenue, count(distinct oi.order_id) as total_order,
+avg(r.review_score) as avg_review_score
+from order_items oi 
+left join order_reviews r on oi.order_id = r.order_id 
+group by oi.seller_id
+),
+ranked_sellers as(
+select seller_id, total_revenue,total_order,avg_review_score,rank() over(order by total_revenue desc) as revenue_rank
+from seller_metrics 
+)
+select seller_id,round(total_revenue,2) as total_revenue,total_order,round(avg_review_score,2) as avg_review_score,
+revenue_rank,
+case
+	when revenue_rank <= 10 and avg_review_score >= 4
+	then 'Excellent'
+	when revenue_rank <=100
+	then 'Good'
+	else 'Needs Improvement'
+end as perfoemance_category
+from ranked_sellers 
+order by revenue_rank;
