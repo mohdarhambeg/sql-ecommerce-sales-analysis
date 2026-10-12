@@ -29,12 +29,21 @@ group by s.seller_state
 order by total_revenue desc;
 
 --Average review score for each seller
-select oi.seller_id, round(avg(t.review_score),2) as average_review_score, count(distinct oi.order_id) as total_order
-from order_items oi
-join order_reviews t on oi.order_id = t.order_id 
-group by oi.seller_id 
-having count(distinct oi.order_id) >=10
-order by average_review_score desc;
+WITH seller_orders AS (
+    SELECT DISTINCT seller_id, order_id
+    FROM order_items
+)
+SELECT
+    so.seller_id,
+    ROUND(AVG(r.review_score), 2) AS average_review_score,
+    COUNT(DISTINCT so.order_id) AS total_orders
+FROM seller_orders so
+JOIN order_reviews r
+    ON so.order_id = r.order_id
+GROUP BY so.seller_id
+HAVING COUNT(DISTINCT so.order_id) >= 10
+ORDER BY average_review_score DESC;
+
 
 --rank seller by revenue
 SELECT
@@ -48,45 +57,85 @@ GROUP BY seller_id
 ORDER BY revenue_rank
 LIMIT 20;
 
---seller performance scorecard 
-with seller_revenue as(
-	select seller_id,sum(price) as total_revenue, count(distinct order_id) as total_orders
-	from order_items
-	group by seller_id
-),
-seller_reviews as(
-select oi.seller_id, avg(r.review_score) as avg_review_score
-from order_items oi
-join order_reviews r on oi.order_id = r.order_id
-group by oi.seller_id
-)
-select sr.seller_id, sr.total_revenue, sr.total_orders,
-round(srev.avg_review_score, 2) as avg_review_score,
-rank() over(order by sr.total_revenue desc) as revenue_rank 
-from seller_revenue sr
-left join seller_reviews srev on sr.seller_id = srev.seller_id 
-order by revenue_rank 
-limit 20;
 
---seller performance categories
-with seller_performance as (
-select oi.seller_id, sum(oi.price) as total_revenue, count(distinct oi.order_id) as total_order,
-avg(r.review_score) as avg_review_score
-from order_items oi 
-left join order_reviews r on oi.order_id = r.order_id 
-group by oi.seller_id
+-- Seller performance scorecard
+WITH seller_revenue AS (
+    SELECT
+        seller_id,
+        SUM(price) AS total_revenue,
+        COUNT(DISTINCT order_id) AS total_orders
+    FROM order_items
+    GROUP BY seller_id
+),
+seller_orders AS (
+    SELECT DISTINCT seller_id, order_id
+    FROM order_items
+),
+seller_reviews AS (
+    SELECT
+        so.seller_id,
+        AVG(r.review_score) AS avg_review_score
+    FROM seller_orders so
+    JOIN order_reviews r
+        ON so.order_id = r.order_id
+    GROUP BY so.seller_id
 )
-select seller_id, total_revenue, total_order, round(avg_review_score,2) as avg_review_score ,
-case
-	when total_revenue >= 100000
-		 and avg_review_score >=4
-	then 'Top Performer'
-	when total_revenue >= 50000
-	then 'Strong Performer'
-	else 'Developer Seller'
-end as seller_category
-from seller_performance
-order by total_revenue desc;
+SELECT
+    sr.seller_id,
+    sr.total_revenue,
+    sr.total_orders,
+    ROUND(srev.avg_review_score, 2) AS avg_review_score,
+    RANK() OVER (
+        ORDER BY sr.total_revenue DESC
+    ) AS revenue_rank
+FROM seller_revenue sr
+LEFT JOIN seller_reviews srev
+    ON sr.seller_id = srev.seller_id
+ORDER BY revenue_rank
+LIMIT 20;
+
+
+
+-- Seller performance categories
+WITH seller_revenue AS (
+    SELECT
+        seller_id,
+        SUM(price) AS total_revenue,
+        COUNT(DISTINCT order_id) AS total_orders
+    FROM order_items
+    GROUP BY seller_id
+),
+seller_orders AS (
+    SELECT DISTINCT seller_id, order_id
+    FROM order_items
+),
+seller_reviews AS (
+    SELECT
+        so.seller_id,
+        AVG(r.review_score) AS avg_review_score
+    FROM seller_orders so
+    JOIN order_reviews r
+        ON so.order_id = r.order_id
+    GROUP BY so.seller_id
+)
+SELECT
+    sr.seller_id,
+    sr.total_revenue,
+    sr.total_orders,
+    ROUND(srev.avg_review_score, 2) AS avg_review_score,
+    CASE
+        WHEN sr.total_revenue >= 100000
+             AND srev.avg_review_score >= 4
+            THEN 'Top Performer'
+        WHEN sr.total_revenue >= 50000
+            THEN 'Strong Performer'
+        ELSE 'Developing Seller'
+    END AS seller_category
+FROM seller_revenue sr
+LEFT JOIN seller_reviews srev
+    ON sr.seller_id = srev.seller_id
+ORDER BY sr.total_revenue DESC;
+
 
 --advanced  seller scorecard
 with seller_metrics as (
@@ -108,6 +157,6 @@ case
 	when revenue_rank <=100
 	then 'Good'
 	else 'Needs Improvement'
-end as perfoemance_category
+end as performance_category
 from ranked_sellers 
 order by revenue_rank;
