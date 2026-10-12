@@ -85,6 +85,7 @@ join order_payments op  on o.order_id = op.order_id
 group by c.customer_state 
 order by revenue desc;
 
+
 -- Monthly performance table
 WITH order_totals AS (
     SELECT
