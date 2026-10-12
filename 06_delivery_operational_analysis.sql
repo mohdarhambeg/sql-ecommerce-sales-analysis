@@ -12,10 +12,23 @@ from orders
 where order_status = 'delivered' and order_delivered_customer_date is not null 
 limit 10;
 
---Average delivary time 
-select order_id,round(EXTRACT(EPOCH from (order_delivered_customer_date - order_purchase_timestamp))/86400,2) as delivery_days
-from orders
-where order_status = 'delivered' and order_delivered_customer_date is not null;
+
+-- Average Delivery Time
+SELECT
+    ROUND(
+        AVG(
+            EXTRACT(
+                EPOCH FROM (
+                    order_delivered_customer_date
+                    - order_purchase_timestamp
+                )
+            ) / 86400
+        ),
+        2
+    ) AS average_delivery_days
+FROM orders
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date IS NOT NULL;
 
 --Identify late deliveries
 select order_id,
@@ -45,15 +58,29 @@ from orders
 where order_status = 'delivered' 
 and order_delivered_customer_date is not null;
 
---Delivery performance by state
-select c.customer_state,count(o.order_id) as delivered_orders,
-round(avg(extract(epoch from(o.order_delivered_customer_date - order_purchase_timestamp)))/86400,2) as average_delivary_days
-from customers c 
-join orders o on c.customer_id = o.customer_id
-where order_status = 'delivered' 
-and order_delivered_customer_date is not null
-group by c.customer_state
-order by average_delivary_days desc;
+
+-- Delivery Performance by State
+SELECT
+    c.customer_state,
+    COUNT(o.order_id) AS delivered_orders,
+    ROUND(
+        AVG(
+            EXTRACT(
+                EPOCH FROM (
+                    o.order_delivered_customer_date
+                    - o.order_purchase_timestamp
+                )
+            ) / 86400
+        ),
+        2
+    ) AS average_delivery_days
+FROM customers c
+JOIN orders o
+    ON c.customer_id = o.customer_id
+WHERE o.order_status = 'delivered'
+  AND o.order_delivered_customer_date IS NOT NULL
+GROUP BY c.customer_state
+ORDER BY average_delivery_days DESC;
 
 --Late delivery rate by state
 select c.customer_state,count(*) as delivered_orders,
@@ -93,7 +120,7 @@ select
 		else 'On Time'
 	end as delivery_status,
 	round(avg(r.review_score),2) as average_review_score,
-	count(*) as total_orders
+	COUNT(DISTINCT o.order_id) AS total_orders
 from orders o 
 join order_reviews r on o.order_id = r.order_id
 where o.order_status = 'delivered'
