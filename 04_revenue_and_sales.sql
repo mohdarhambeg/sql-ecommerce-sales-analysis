@@ -1,63 +1,84 @@
---CALCULATE TOTAL REVENUE
-select sum(payment_value) as total_revenue
-from order_payments;
---CALCULATE REVENUE BY PAYMENT METHOD
-select payment_type,sum(payment_value) as total_revenue
-from order_payments
-group by payment_type 
-order by total_revenue desc;
---AVERAGE PAYMENT VALUE
-select avg(payment_value) as average_payment_value
-from order_payments;
---CALCULATE REVENUE BY MONTH
-select date_trunc('month',o.order_purchase_timestamp) as month,sum(op.payment_value) as revenue
-from orders o 
-join order_payments op on o.order_id = op.order_id 
-group by month
-order by month;
---CALCULATE REVENUE BY YEAR 
-select EXTRACT(year from o.order_purchase_timestamp)as year,sum(op.payment_value) as revenue
-from orders o 
-join order_payments op on o.order_id = op.order_id 
-group by year
-order by year;
+-- 1. Calculate Total Revenue
+SELECT
+    ROUND(SUM(payment_value), 2) AS total_revenue
+FROM order_payments;
 
---TOP 10 PRODUCT BY REVENUE
-select oi.product_id ,SUM(oi.price) as revenue
-from order_items as oi
-group by oi.product_id
-order by revenue desc
-limit 10;
 
---REVENUE BY PRODUCT CATEGORY
-select p.product_category_name,sum(oi.price) as revenue 
-from order_items oi 
-join products p on oi.product_id = p.product_id
-group by p.product_category_name
-order by revenue desc;
+-- 2. Revenue by Payment Method
+SELECT
+    payment_type,
+    ROUND(SUM(payment_value), 2) AS total_revenue
+FROM order_payments
+GROUP BY payment_type
+ORDER BY total_revenue DESC;
 
---REVENUE BY PRODUCT CATEGORY NAME ENGLISH(top 10)
-select ct.product_category_name_english as category,sum(oi.price) as revenue 
-from order_items oi 
-join products p on p.product_id = oi.product_id 
-join category_translation ct on p.product_category_name = ct.product_category_name 
-group by category
-order by revenue desc
-limit 10;
 
---NUMBER OF PRODUCTS SOLD BY CATEGORY
-select ct.product_category_name_english as category,count(*) as unit_sold 
-from order_items oi 
-join products p on p.product_id = oi.product_id 
-join category_translation ct on p.product_category_name = ct.product_category_name 
-group by category
-order by unit_sold desc
-limit 10;
---AVERAGE PRODUCT PRICE BY CATEGORY
-select ct.product_category_name_english as category, round(avg(oi.price),2) as average_price
-from order_items oi 
-join products p on p.product_id = oi.product_id 
-join category_translation ct on p.product_category_name = ct.product_category_name 
-group by category
-order by average_price desc
-limit 10;
+-- 3. Average Payment Value per Payment Record
+SELECT
+    ROUND(AVG(payment_value), 2) AS average_payment_value
+FROM order_payments;
+
+
+-- 4. Monthly Revenue
+SELECT
+    DATE_TRUNC('month', o.order_purchase_timestamp) AS month,
+    ROUND(SUM(op.payment_value), 2) AS revenue
+FROM orders o
+JOIN order_payments op
+    ON o.order_id = op.order_id
+GROUP BY DATE_TRUNC('month', o.order_purchase_timestamp)
+ORDER BY month;
+
+
+-- 5. Yearly Revenue
+SELECT
+    EXTRACT(YEAR FROM o.order_purchase_timestamp) AS year,
+    ROUND(SUM(op.payment_value), 2) AS revenue
+FROM orders o
+JOIN order_payments op
+    ON o.order_id = op.order_id
+GROUP BY EXTRACT(YEAR FROM o.order_purchase_timestamp)
+ORDER BY year;
+
+
+-- 6. Average Order Value (AOV)
+WITH order_totals AS (
+    SELECT
+        order_id,
+        SUM(payment_value) AS order_value
+    FROM order_payments
+    GROUP BY order_id
+)
+SELECT
+    ROUND(AVG(order_value), 2) AS average_order_value
+FROM order_totals;
+
+
+-- 7. Monthly Revenue Growth
+WITH monthly_revenue AS (
+    SELECT
+        DATE_TRUNC('month', o.order_purchase_timestamp) AS month,
+        SUM(op.payment_value) AS revenue
+    FROM orders o
+    JOIN order_payments op
+        ON o.order_id = op.order_id
+    GROUP BY DATE_TRUNC('month', o.order_purchase_timestamp)
+),
+revenue_comparison AS (
+    SELECT
+        month,
+        revenue,
+        LAG(revenue) OVER (ORDER BY month) AS previous_month_revenue
+    FROM monthly_revenue
+)
+SELECT
+    month,
+    ROUND(revenue, 2) AS revenue,
+    ROUND(previous_month_revenue, 2) AS previous_month_revenue,
+    ROUND(
+        100.0 * (revenue - previous_month_revenue)
+        / NULLIF(previous_month_revenue, 0),
+        2
+    ) AS revenue_growth_percentage
+FROM revenue_comparison
+ORDER BY month;
