@@ -1,4 +1,4 @@
-Basic Data Exploration
+--Basic Data Exploration
 ----------------------
 select count(*) as total_customers
 from customers;
