@@ -28,7 +28,7 @@ select c.customer_unique_id,count(o.order_id) as total_order
 from customers c 
 join orders o on c.customer_id = o.customer_id 
 group by c.customer_unique_id
-having count(order_id) > 1
+having count(o.order_id) > 1
 order by total_order desc;
 
 --Count the number of repeat customers
@@ -70,7 +70,7 @@ select order_id, sum(payment_value) as order_value
 from order_payments 
 group by order_id
 )
-select round(avg(order_value)) as average_order_value
+select round(avg(order_value),2) as average_order_value
 from order_totals;
 
 --AOV by Customer state 
