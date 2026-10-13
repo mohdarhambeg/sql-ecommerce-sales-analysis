@@ -95,3 +95,26 @@ The main objectives of this project are:
 **Mohd Arham Beg**
 
 Computer Science Engineering Student | Aspiring Data Analyst
+## Key Business Insights
+
+Based on the SQL analysis of the Olist Brazilian e-commerce dataset, the following insights were identified:
+
+- **Dataset scale:** The analysis includes 99,441 customer records and 99,441 orders.
+- **Delivery performance:** 96,478 orders were delivered, representing approximately **97.02% of all orders**.
+- **Orders requiring further investigation:** 2,963 orders, or approximately **2.98%**, were not counted as delivered. Further analysis of order statuses can help identify cancellations, delays, and other operational issues.
+- **Opportunity for improvement:** Analysing delivery delays, customer reviews, payment methods, product performance, and seller performance can help identify opportunities to improve customer satisfaction and operational efficiency.
+
+### Payment Analysis
+
+- **Total payment records:** 136,837.
+- **Orders with payments:** 99,440.
+- **Total payment value:** R$16,008,872.12.
+- **Average payment value:** R$154.10 per payment record.
+- **Payment coverage:** Approximately **99.999%** of all orders have associated payment records.
+- **Data quality finding:** One delivered order contains order-item records but has no matching payment record. This discrepancy requires further investigation to determine why the payment information is missing.Update README with payment data quality findings
+- **Data quality check:** One order has no matching payment record. This order should be investigated to understand whether the missing payment information is related to its status or an incomplete record.
+- **Key insight:** The number of payment records exceeds the number of orders with payments, indicating that some orders have multiple payment records. Analysing payment types and instalments can provide further insights into customer payment behaviour.
+
+### Conclusion
+
+The analysis demonstrates how SQL can be used to evaluate e-commerce performance through order, delivery, customer, and payment metrics. These KPIs provide a starting point for identifying operational issues and supporting data-driven business decisions.
