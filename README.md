@@ -113,6 +113,15 @@ Based on the SQL analysis of the Olist Brazilian e-commerce dataset, the followi
 - **Payment coverage:** Approximately **99.999%** of all orders have associated payment records.
 - **Data quality finding:** One delivered order contains order-item records but has no matching payment record. This discrepancy requires further investigation to determine why the payment information is missing.Update README with payment data quality findings
 - **Data quality check:** One order has no matching payment record. This order should be investigated to understand whether the missing payment information is related to its status or an incomplete record.
+- **Data-quality analysis:** Identified 775 orders with payment records but no matching order-item records, associated with R$162,591.95 in payment value. Most were marked unavailable (603 orders) or cancelled (164 orders). These records warrant further investigation before interpreting payment totals as completed sales revenue.
+- **Delivered-order value:** The 96,478 delivered orders account for R$13,221,498.11 in product value and R$2,198,275.64 in freight charges, giving a combined delivered order-item value of R$15,419,773.75.
+### Customer Analysis
+
+- **Customer distribution:** Analysed customer distribution across states and cities to identify the major geographical markets.
+- **Customer purchasing behaviour:** Examined order frequency to distinguish one-time buyers from repeat customers.
+- **Customer spending:** Identified top customers by spending and grouped customers into high-, medium-, and low-value segments using defined spending thresholds.
+- **Average order value:** Analysed payment totals per order and compared average order values across customer states.
+- **Business opportunity:** Customer segmentation and repeat-purchase analysis can help identify opportunities to improve customer retention and develop targeted marketing strategies.
 - **Key insight:** The number of payment records exceeds the number of orders with payments, indicating that some orders have multiple payment records. Analysing payment types and instalments can provide further insights into customer payment behaviour.
 
 ### Conclusion
