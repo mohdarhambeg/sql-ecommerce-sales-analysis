@@ -133,7 +133,7 @@ The analysis demonstrates how SQL can be used to evaluate e-commerce performance
 
 The interactive Power BI dashboard provides insights into Olist's e-commerce sales performance.
 
-![Olist E-commerce Sales Dashboard](images/olist-dashboard.png)
+   [![Olist E-commerce Sales Dashboard](images/olist_dashboard.png)](images/olist_dashboard.png)
 
 ### Key Performance Indicators
 
