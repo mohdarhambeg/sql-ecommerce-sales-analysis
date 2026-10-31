@@ -127,3 +127,32 @@ Based on the SQL analysis of the Olist Brazilian e-commerce dataset, the followi
 ### Conclusion
 
 The analysis demonstrates how SQL can be used to evaluate e-commerce performance through order, delivery, customer, and payment metrics. These KPIs provide a starting point for identifying operational issues and supporting data-driven business decisions.
+---
+
+## Power BI Dashboard
+
+The interactive Power BI dashboard provides insights into Olist's e-commerce sales performance.
+
+![Olist E-commerce Sales Dashboard](images/olist-dashboard.png)
+
+### Key Performance Indicators
+
+- Total Orders: 99,441
+- Delivered Orders: 96,478
+- Delivery Rate: 97.02%
+- Product Revenue: R$13,591,643.70
+
+### Dashboard Visualizations
+
+1. Monthly Product Revenue Trend
+2. Top 10 Product Categories by Revenue
+3. Orders by Customer State
+4. Order Status Distribution
+
+### Tools Used
+
+- PostgreSQL
+- SQL
+- Power BI
+- DAX
+- Git and GitHub
